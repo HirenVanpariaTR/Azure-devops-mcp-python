@@ -1,6 +1,5 @@
 # Azure DevOps MCP Server - Python version requirements
-mcp>=1.0.0
-mcp-server>=1.0.0
+mcp>=1.10.0
 azure-devops>=7.1.0b4
 azure-identity>=1.15.0
 azure-core>=1.24.0
