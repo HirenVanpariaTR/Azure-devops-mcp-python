@@ -9,8 +9,8 @@ set -e
 RESOURCE_GROUP="rg-devops-mcp"
 APP_SERVICE_PLAN="asp-devops-mcp"
 WEB_APP_NAME="devops-mcp-server-$(date +%s)"  # Unique name with timestamp
-LOCATION="eastus"
-AZURE_DEVOPS_ORG=""  # Set your organization name here
+LOCATION="eastus2"
+AZURE_DEVOPS_ORG="tr-corp-legal-tracker"  # Set your organization name here
 
 # Colors for output
 RED='\033[0;31m'
@@ -66,21 +66,11 @@ create_resources() {
     
     # Create App Service Plan
     echo_info "Creating App Service Plan: $APP_SERVICE_PLAN"
-    az appservice plan create \
-        --name "$APP_SERVICE_PLAN" \
-        --resource-group "$RESOURCE_GROUP" \
-        --sku B1 \
-        --is-linux \
-        --output table
+    az appservice plan create --name "$APP_SERVICE_PLAN" --resource-group "$RESOURCE_GROUP" --sku B1 --is-linux --output table
     
     # Create Web App
     echo_info "Creating Web App: $WEB_APP_NAME"
-    az webapp create \
-        --name "$WEB_APP_NAME" \
-        --resource-group "$RESOURCE_GROUP" \
-        --plan "$APP_SERVICE_PLAN" \
-        --runtime "PYTHON:3.11" \
-        --output table
+    az webapp create --name "$WEB_APP_NAME" --resource-group "$RESOURCE_GROUP" --plan "$APP_SERVICE_PLAN" --runtime "PYTHON:3.11" --output table
     
     echo_success "Azure resources created successfully!"
 }
@@ -92,28 +82,16 @@ configure_webapp() {
     # Set environment variables
     if [ -n "$AZURE_DEVOPS_ORG" ]; then
         echo_info "Setting AZURE_DEVOPS_ORG environment variable"
-        az webapp config appsettings set \
-            --name "$WEB_APP_NAME" \
-            --resource-group "$RESOURCE_GROUP" \
-            --settings AZURE_DEVOPS_ORG="$AZURE_DEVOPS_ORG" \
-            --output table
+        az webapp config appsettings set --name "$WEB_APP_NAME" --resource-group "$RESOURCE_GROUP" --settings AZURE_DEVOPS_ORG="$AZURE_DEVOPS_ORG" --output table
     fi
     
     # Set startup command
     echo_info "Setting startup command"
-    az webapp config set \
-        --name "$WEB_APP_NAME" \
-        --resource-group "$RESOURCE_GROUP" \
-        --startup-file "deploy/startup.sh" \
-        --output table
+    az webapp config set --name "$WEB_APP_NAME" --resource-group "$RESOURCE_GROUP" --startup-file "deploy/startup.sh" --output table
     
     # Enable HTTPS only
     echo_info "Enabling HTTPS only"
-    az webapp update \
-        --name "$WEB_APP_NAME" \
-        --resource-group "$RESOURCE_GROUP" \
-        --https-only true \
-        --output table
+    az webapp update --name "$WEB_APP_NAME" --resource-group "$RESOURCE_GROUP" --https-only true --output table
     
     echo_success "Web App configured successfully!"
 }
@@ -132,13 +110,7 @@ deploy_app() {
     fi
     
     # Deploy using az webapp up
-    az webapp up \
-        --name "$WEB_APP_NAME" \
-        --resource-group "$RESOURCE_GROUP" \
-        --plan "$APP_SERVICE_PLAN" \
-        --location "$LOCATION" \
-        --runtime "PYTHON:3.11" \
-        --output table
+    az webapp up --name "$WEB_APP_NAME" --resource-group "$RESOURCE_GROUP" --plan "$APP_SERVICE_PLAN" --location "$LOCATION" --runtime "PYTHON:3.11" --output table
     
     echo_success "Application deployed successfully!"
 }
@@ -147,11 +119,7 @@ deploy_app() {
 show_deployment_info() {
     echo_info "Getting deployment information..."
     
-    WEBAPP_URL=$(az webapp show \
-        --name "$WEB_APP_NAME" \
-        --resource-group "$RESOURCE_GROUP" \
-        --query "defaultHostName" \
-        --output tsv)
+    WEBAPP_URL=$(az webapp show --name "$WEB_APP_NAME" --resource-group "$RESOURCE_GROUP" --query "defaultHostName" --output tsv)
     
     echo_success "Deployment completed!"
     echo ""

@@ -27,35 +27,22 @@ AZURE_DEVOPS_ORG=your-organization-name
 az group create --name rg-devops-mcp --location eastus
 
 # 2. Create App Service Plan
-az appservice plan create \
-    --name asp-devops-mcp \
-    --resource-group rg-devops-mcp \
-    --sku B1 \
-    --is-linux
+az appservice plan create --name asp-devops-mcp --resource-group rg-devops-mcp --sku B1 --is-linux
 
 # 3. Create Web App
-az webapp create \
-    --name devops-mcp-server \
-    --resource-group rg-devops-mcp \
-    --plan asp-devops-mcp \
-    --runtime "PYTHON:3.11"
+az webapp create --name devops-mcp-server --resource-group rg-devops-mcp --plan asp-devops-mcp --runtime "PYTHON:3.11"
 
 # 4. Configure Environment Variables
-az webapp config appsettings set \
-    --name devops-mcp-server \
-    --resource-group rg-devops-mcp \
-    --settings AZURE_DEVOPS_ORG="your-org-name"
+az webapp config appsettings set --name devops-mcp-server --resource-group rg-devops-mcp --settings AZURE_DEVOPS_ORG="tr-corp-legal-tracker"
 
-# 5. Configure Startup Command
-az webapp config set \
-    --name devops-mcp-server \
-    --resource-group rg-devops-mcp \
-    --startup-file "deploy/startup.sh"
+# 5. Configure Startup Command (Option A - Bash script)
+az webapp config set --name devops-mcp-server --resource-group rg-devops-mcp --startup-file "deploy/startup.sh"
+
+# 5. Configure Startup Command (Option B - Python script, more reliable)
+az webapp config set --name devops-mcp-server --resource-group rg-devops-mcp --startup-file "python deploy/startup.py"
 
 # 6. Deploy Code (from project root)
-az webapp up \
-    --name devops-mcp-server \
-    --resource-group rg-devops-mcp
+az webapp up --name devops-mcp-server --resource-group rg-devops-mcp
 ```
 
 ### Option B: Deploy via Azure Portal
@@ -80,17 +67,13 @@ az webapp up \
 
 ### Get the Web App URL
 ```bash
-az webapp show \
-    --name devops-mcp-server \
-    --resource-group rg-devops-mcp \
-    --query "defaultHostName" \
-    --output tsv
+az webapp show --name devops-mcp-server --resource-group rg-devops-mcp --query "defaultHostName" --output tsv
 ```
 
 ### Test with curl
 ```bash
 # Replace YOUR_APP_NAME and YOUR_PAT_TOKEN
-curl -X POST "https://YOUR_APP_NAME.azurewebsites.net/call" \
+curl -X POST "devops-mcp-server.azurewebsites.net/mcp" \
   -H "Content-Type: application/json" \
   -H "X-Azure-DevOps-PAT: YOUR_PAT_TOKEN" \
   -d '{
@@ -111,16 +94,36 @@ curl "https://YOUR_APP_NAME.azurewebsites.net/"
 
 ### Check Logs
 ```bash
-az webapp log tail \
-    --name devops-mcp-server \
-    --resource-group rg-devops-mcp
+az webapp log tail --name devops-mcp-server --resource-group rg-devops-mcp
+```
+
+### Quick Fix for MCP Import Error
+If you see "ModuleNotFoundError: No module named 'mcp'", run these commands:
+
+```bash
+# Option 1: Switch to Python startup script (recommended)
+az webapp config set --name devops-mcp-server --resource-group rg-devops-mcp --startup-file "python deploy/startup.py"
+
+# Option 2: Update startup command to install dependencies first
+az webapp config set --name devops-mcp-server --resource-group rg-devops-mcp --startup-file "pip install -r requirements.txt && python -m azure_devops_mcp.main $AZURE_DEVOPS_ORG --authentication pat --mode http --host 0.0.0.0 --port $PORT --domains all"
+
+# Restart the web app to apply changes
+az webapp restart --name devops-mcp-server --resource-group rg-devops-mcp
 ```
 
 ### Common Issues
 
-1. **Startup Errors**: Check logs for missing dependencies
-2. **Port Conflicts**: Azure Web Apps use PORT environment variable
-3. **Authentication Errors**: Verify AZURE_DEVOPS_ORG is set correctly
+1. **MCP Module Not Found Error**: 
+   ```
+   ModuleNotFoundError: No module named 'mcp'
+   ```
+   **Solution**: 
+   - Use the Python startup script: `az webapp config set --name devops-mcp-server --resource-group rg-devops-mcp --startup-file "python deploy/startup.py"`
+   - Or manually install dependencies by adding this to your startup command: `pip install -r requirements.txt &&`
+
+2. **Startup Errors**: Check logs for missing dependencies
+3. **Port Conflicts**: Azure Web Apps use PORT environment variable
+4. **Authentication Errors**: Verify AZURE_DEVOPS_ORG is set correctly
 
 ### Expected Response
 ```json

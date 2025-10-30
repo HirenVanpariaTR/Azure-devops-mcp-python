@@ -87,7 +87,7 @@ python deploy/test_azure_webapp.py \
 curl "https://your-app-name.azurewebsites.net/"
 
 # Test with PAT authentication
-curl -X POST "https://your-app-name.azurewebsites.net/call" \
+curl -X POST "https://your-app-name.azurewebsites.net/mcp" \
   -H "Content-Type: application/json" \
   -H "X-Azure-DevOps-PAT: your-personal-access-token" \
   -d '{
@@ -99,7 +99,7 @@ curl -X POST "https://your-app-name.azurewebsites.net/call" \
   }'
 
 # Test without PAT (should fail with 401)
-curl -X POST "https://your-app-name.azurewebsites.net/call" \
+curl -X POST "https://your-app-name.azurewebsites.net/mcp" \
   -H "Content-Type: application/json" \
   -d '{
     "method": "tools/call", 
@@ -126,7 +126,7 @@ $body = @{
     }
 } | ConvertTo-Json -Depth 3
 
-Invoke-RestMethod -Uri "https://your-app-name.azurewebsites.net/call" `
+Invoke-RestMethod -Uri "https://your-app-name.azurewebsites.net/mcp" `
     -Method POST `
     -Headers $headers `
     -Body $body `

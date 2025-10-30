@@ -61,7 +61,7 @@ def test_azure_webapp(
         }
         
         response = requests.post(
-            f"{app_url}/call",
+            f"{app_url}/mcp",
             headers=headers,
             json=test_payload,
             timeout=30
@@ -81,7 +81,7 @@ def test_azure_webapp(
         # Test 3: Test without PAT (should fail)
         print("3️⃣  Testing without PAT header (should fail)...")
         response = requests.post(
-            f"{app_url}/call",
+            f"{app_url}/mcp",
             json=test_payload,
             timeout=30
         )
@@ -106,7 +106,7 @@ def test_azure_webapp(
         }
         
         response = requests.post(
-            f"{app_url}/call",
+            f"{app_url}/mcp",
             headers=headers,
             json=info_payload,
             timeout=30

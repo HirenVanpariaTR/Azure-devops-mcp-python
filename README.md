@@ -83,7 +83,7 @@ python -m azure_devops_mcp myorg --mode http
 python -m azure_devops_mcp myorg --mode http --authentication pat
 
 # Client requests must include PAT in header
-curl -X POST "http://127.0.0.1:8000/call" \
+curl -X POST "http://127.0.0.1:8000/mcp" \
   -H "Content-Type: application/json" \
   -H "X-Azure-DevOps-PAT: your-personal-access-token" \
   -d '{"method": "tools/call", "params": {"name": "test_connection", "arguments": {}}}'

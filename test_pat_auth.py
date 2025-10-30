@@ -30,7 +30,7 @@ def test_pat_authentication(host="127.0.0.1", port=8000, pat_token="test-pat-tok
         
         # Test connection tool without PAT (should fail)
         print("2. Testing connection without PAT header...")
-        response = requests.post(f"{base_url}/call", json={
+        response = requests.post(f"{base_url}/mcp", json={
             "method": "tools/call",
             "params": {
                 "name": "test_connection",
@@ -43,7 +43,7 @@ def test_pat_authentication(host="127.0.0.1", port=8000, pat_token="test-pat-tok
         
         # Test connection tool with PAT
         print("3. Testing connection with PAT header...")
-        response = requests.post(f"{base_url}/call", 
+        response = requests.post(f"{base_url}/mcp", 
             headers=headers,
             json={
                 "method": "tools/call", 
@@ -62,7 +62,7 @@ def test_pat_authentication(host="127.0.0.1", port=8000, pat_token="test-pat-tok
         
         # Test server info tool with PAT
         print("4. Testing server info tool with PAT header...")
-        response = requests.post(f"{base_url}/call",
+        response = requests.post(f"{base_url}/mcp",
             headers=headers,
             json={
                 "method": "tools/call",
