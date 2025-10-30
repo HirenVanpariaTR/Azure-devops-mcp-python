@@ -1,0 +1,17 @@
+# Azure Web App Requirements
+# Core MCP and Azure DevOps dependencies
+mcp>=1.0.0
+azure-devops>=7.1.0b3
+azure-identity>=1.15.0
+azure-core>=1.29.5
+
+# HTTP server dependencies
+uvicorn[standard]>=0.24.0
+fastapi>=0.104.0
+
+# CLI dependencies  
+click>=8.1.0
+
+# Additional dependencies
+requests>=2.31.0
+typing-extensions>=4.8.0
